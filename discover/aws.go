@@ -62,4 +62,19 @@ func getMetadata(path string) (string, error) {
 func awsPrivateIPv4() (net.IP, error) {
 	ipString, err := getMetadata("/local-ipv4")
 	if err != nil {
-		return nil,
+		return nil, err
+	}
+	return net.ParseIP(ipString), nil
+}
+
+func awsPublicIPv4() (net.IP, error) {
+	ipString, err := getMetadata("/public-ipv4")
+	if err != nil {
+		return nil, err
+	}
+	return net.ParseIP(ipString), nil
+}
+
+func awsHostname() (string, error) {
+	return getMetadata("/public-hostname")
+}
