@@ -1,6 +1,7 @@
 package discover
 
 import (
+	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
@@ -35,12 +36,12 @@ func getMetadataToken() (string, error) {
 	}
 	defer resp.Body.Close()
 
-	token, err := StandardResponseBodyString(resp)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
 
-	return token, nil
+	return string(body), nil
 }
 
 func getMetadata(path string) (string, error) {
@@ -56,7 +57,18 @@ func getMetadata(path string) (string, error) {
 	}
 	req.Header.Set("X-aws-ec2-metadata-token", token)
 
-	return StandardStringFromHTTP(req, client)
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(body), nil
 }
 
 func awsPrivateIPv4() (net.IP, error) {
